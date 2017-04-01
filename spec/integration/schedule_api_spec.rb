@@ -1,7 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe "the schedule API" do
-  let!(:dog) { Dog.create(name: "Duke") }
+  let(:dog) { Dog.create(name: "Duke") }
+  let(:meal) { Meal.create(food: "Royal Canin Medium Puppy Dry", portion: "3 scoops", dog_id: dog.id) }
+  let(:walk) { Walk.create(location: "Muir Woods", leash_required?: false, dog_id: dog.id) }
 
   describe "querying the dog's schedule" do
     it "returns an empty array when there are no items" do
@@ -17,16 +19,22 @@ RSpec.describe "the schedule API" do
       # You can modify any of the following code as you make decisions on
       # how to set up and represent data in your system.
 
-      post "/dogs/#{dog.id}/meals", {
+      post "/dogs/#{dog.id}/scheduled_events", {
         start_time: "2017-01-01 08:00:00 -0800",
         end_time: "2017-01-01 08:15:00 -0800",
-        food: "Royal Canin Medium Puppy Dry"
+        date: "2017-01-01",
+        schedulable_type: "Meal",
+        schedulable_id: meal.id,
+        dog_id: dog.id,
       }
 
-      post "/dogs/#{dog.id}/walks", {
-        start_time: "2017-01-01 10:00:00 -0800",
-        end_time: "2017-01-01 11:45:00 -0800",
-        location: "Fort Funston"
+      post "/dogs/#{dog.id}/scheduled_events", {
+        start_time: "2017-01-01 09:30:00 -0800",
+        end_time: "2017-01-01 10:30:00 -0800",
+        date: "2017-01-01",
+        schedulable_type: "Walk",
+        schedulable_id: walk.id,
+        dog_id: dog.id,
       }
 
       get "/dogs/#{dog.id}/schedule.json", date: "2017-01-01"
@@ -37,12 +45,20 @@ RSpec.describe "the schedule API" do
       expect(scheduled_events[0]["type"]).to eq "meal"
       expect(scheduled_events[0]["start_time"]).to eq "2017-01-01 08:00:00 -0800"
       expect(scheduled_events[0]["end_time"]).to eq "2017-01-01 08:15:00 -0800"
-      expect(scheduled_events[0]["food"]).to eq "Royal Canin Medium Puppy Dry"
+      expect(scheduled_events[0]["date"]).to eq "2017-01-01"
+      expect(scheduled_events[0]["type_description"]["food"]).to eq "Royal Canin Medium Puppy Dry"
+      expect(scheduled_events[0]["type_description"]["portion"]).to eq "3 Scoops"
+      expect(scheduled_events[0]["type_description"]["id"]).to eq meal.id
+      expect(scheduled_events[0]["type_description"]["dog_id"]).to eq dog.id
 
       expect(scheduled_events[1]["type"]).to eq "walk"
-      expect(scheduled_events[1]["start_time"]).to eq "2017-01-01 10:00:00 -0800"
-      expect(scheduled_events[1]["end_time"]).to eq "2017-01-01 11:45:00 -0800"
-      expect(scheduled_events[1]["location"]).to eq "Fort Funston"
+      expect(scheduled_events[1]["start_time"]).to eq "2017-01-01 09:30:00 -0800"
+      expect(scheduled_events[1]["end_time"]).to eq "2017-01-01 10:30:00 -0800"
+      expect(scheduled_events[1]["date"]).to eq "2017-01-01"
+      expect(scheduled_events[1]["type_description"]["location"]).to eq "Muir Woods"
+      expect(scheduled_events[1]["type_description"]["leash_required?"]).to eq false
+      expect(scheduled_events[1]["type_description"]["id"]).to eq walk.id
+      expect(scheduled_events[1]["type_description"]["dog_id"]).to eq dog.id
     end
   end
 end
