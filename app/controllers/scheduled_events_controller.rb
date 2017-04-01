@@ -38,19 +38,21 @@ class ScheduledEventsController < ApplicationController
   def get_scheduled_events
     days_events = ScheduledEvent.where("dog_id = ? AND date = ?", params[:dog_id], params[:date])
     schedule = []
-    days_events.each do |event|
-      event_hash = {
-        type: event.schedulable_type,
-        start_time: event.start_time,
-        end_time: event.end_time,
-        date: event.date,
-      }
-      event_data = event.schedulable
-      event_data_hash = event_data.map(&:attributes)
-      event_hash[:type_description] = event_data_hash
-      schedule << event_hash
+    if !days_events.nil?
+      days_events.each do |event|
+        event_hash = {
+          type: event.schedulable_type,
+          start_time: event.start_time,
+          end_time: event.end_time,
+          date: event.date,
+        }
+        event_data = event.schedulable.as_json
+        event_hash[:type_description] = event_data
+        schedule << event_hash
+      end
+      schedule = schedule.sort_by { |hash| hash[:start_time] }
     end
-    schedule.sort_by { |hash| hash[:start_time] }
+    schedule
   end
 
 end
