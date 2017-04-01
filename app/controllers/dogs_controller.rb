@@ -1,4 +1,7 @@
 class DogsController < ApplicationController
+  #postman can't verify CSRF token authenticity
+  skip_before_action :verify_authenticity_token
+
   def create
     dog = Dog.create(dog_params)
     render json: present_dog(dog), status: :created
@@ -6,7 +9,7 @@ class DogsController < ApplicationController
 
   private
   def dog_params
-    params.require(:dog).permit(:name)
+    params.permit(:name)
   end
 
   def present_dog(dog)
