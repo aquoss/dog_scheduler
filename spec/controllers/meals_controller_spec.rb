@@ -5,7 +5,7 @@ RSpec.describe MealsController, type: :controller do
     let(:dog) { Dog.create(name:"Brutus") }
     it "creates a Meal for a dog" do
       expect do
-        post :create, meal: { food: "Kibbles n Bits", portion: "2 cups", dog_id: dog.id }
+        post :create, { food: "Kibbles n Bits", portion: "2 cups", dog_id: dog.id }
       end.to change { Meal.count }.by 1
 
       expect(Meal.last.food).to eq "Kibbles n Bits"
@@ -14,7 +14,7 @@ RSpec.describe MealsController, type: :controller do
     end
 
     it "returns 201 and renders the Meal attributes" do
-      post :create, meal: { food: "Kibbles n Bits", portion: "2 cups", dog_id: dog.id }
+      post :create, { food: "Kibbles n Bits", portion: "2 cups", dog_id: dog.id }
       expect(response.status).to eq 201
 
       response_json = JSON.parse(response.body)

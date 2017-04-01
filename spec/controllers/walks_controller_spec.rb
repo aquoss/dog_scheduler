@@ -5,7 +5,7 @@ RSpec.describe WalksController, type: :controller do
     let(:dog) { Dog.create(name:"Brutus") }
     it "creates a Walk for a dog" do
       expect do
-        post :create, walk: { location: "Muir Woods", leash_required?: false, dog_id: dog.id }
+        post :create, { location: "Muir Woods", leash_required?: false, dog_id: dog.id }
       end.to change { Walk.count }.by 1
 
       expect(Walk.last.location).to eq "Muir Woods"
@@ -14,7 +14,7 @@ RSpec.describe WalksController, type: :controller do
     end
 
     it "returns 201 and renders the Walk attributes" do
-      post :create, walk: { location: "Muir Woods", leash_required?: false, dog_id: dog.id }
+      post :create, { location: "Muir Woods", leash_required?: false, dog_id: dog.id }
       expect(response.status).to eq 201
 
       response_json = JSON.parse(response.body)
