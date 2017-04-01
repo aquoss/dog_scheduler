@@ -14,11 +14,6 @@ RSpec.describe "the schedule API" do
     end
 
     it "returns a list of items that were added to the dog's schedule" do
-      pending "Implement the rest"
-
-      # You can modify any of the following code as you make decisions on
-      # how to set up and represent data in your system.
-
       post "/dogs/#{dog.id}/scheduled_events", {
         start_time: "2017-01-01 08:00:00 -0800",
         end_time: "2017-01-01 08:15:00 -0800",
