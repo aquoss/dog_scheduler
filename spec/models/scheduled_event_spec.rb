@@ -1,6 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe ScheduledEvent, type: :model do
+  describe "Associations" do
+    it { should belong_to(:dog) }
+    it { should belong_to(:schedulable) }
+  end
+
   let(:dog) { Dog.create(name: "Lola") }
   let(:meal) { Meal.create(food: "Kibbles n Bits", portion: "2 cups", dog_id: dog.id) }
   it "can load and save" do
