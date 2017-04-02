@@ -15,3 +15,6 @@ Reasoning:
 - This saves database space because the event specifics (i.e. food, portion, etc) aren't repeatedly added and stored in the scheduled_events table.
 - From a ux perspective, users could select a saved meal from a dropdown list and schedule it, rather than continually typing in all the meal specifics.
 - It is much easier to scale the number of metrics gathered for meals and walks.
+
+## Further Development
+If there was a front-end, I would want to use something like the ice_cube gem to handle recurring events
