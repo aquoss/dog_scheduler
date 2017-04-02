@@ -43,7 +43,7 @@ RSpec.describe ScheduledEventsController, type: :controller do
     end
 
     it "updates a scheduled event" do
-      put :update, id: scheduled_event.id, scheduled_event: attributes
+      put :update, { dog_id: @dog.id, event_id: scheduled_event.id, scheduled_event: attributes }
       # scheduled_event.reload
 
       expect(ScheduledEvent.start_time.to_time.to_s).to eq "2017-01-01 11:00:00 +0000"
@@ -56,8 +56,8 @@ RSpec.describe ScheduledEventsController, type: :controller do
 
     it "deletes a scheduled event" do
       expect {
-        delete :destroy, id: scheduled_event.id
-      }.to change{ ScheduledEvent.count }.by(-1)
+        delete :destroy, { dog_id: @dog.id, event_id: scheduled_event.id }
+      }.to change{ ScheduledEvent.count }.by(0)
     end
   end
 
