@@ -11,8 +11,24 @@ class ScheduledEventsController < ApplicationController
       new_event.save
       render json: new_event, status: :created
     else
-      render json: {error: "There was an error saving the event"}
+      render json: {error: "There was an error saving the event"} #add status code
     end
+  end
+
+  def update
+    scheduled_event = ScheduledEvent.find(params[:scheduled_event_id])
+    updated_event = scheduled_event.attributes(schedule_params)
+    if !overlapping?(updated_event)
+      updated_event.save
+      render json: updated_event
+    else
+      render json: {error: "There was an error updating the event"}, status: :not_modified
+      #status 304
+  end
+
+  def destroy
+    scheduled_event = ScheduledEvent.find(params[:scheduled_event_id])
+    scheduled_event.destroy
   end
 
   private
