@@ -24,11 +24,13 @@ class ScheduledEventsController < ApplicationController
     else
       render json: {error: "There was an error updating the event"}, status: :not_modified
       #status 304
+    end
   end
 
   def destroy
     scheduled_event = ScheduledEvent.find(params[:event_id])
-    scheduled_event.destroy
+    deleted_event = scheduled_event.destroy
+    render json: deleted_event
   end
 
   private

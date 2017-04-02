@@ -59,7 +59,7 @@ Rails.application.routes.draw do
   post '/dogs/:dog_id/walks', to: 'walks#create'
   get '/dogs/:dog_id/scheduled_events', to: 'scheduled_events#show', as: 'schedule'
   post '/dogs/:dog_id/scheduled_events', to: 'scheduled_events#create'
-  put '/dogs/:dog_id/scheduled_events/event_id', to: 'scheduled_events#update'
-  delete '/dogs/:dog_id/scheduled_events/event_id', to: 'scheduled_event#destroy'
+  put '/dogs/:dog_id/scheduled_events/:event_id', to: 'scheduled_events#update'
+  delete '/dogs/:dog_id/scheduled_events/:event_id', to: 'scheduled_events#destroy'
 
 end
