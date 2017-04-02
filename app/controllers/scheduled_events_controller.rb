@@ -1,6 +1,4 @@
 class ScheduledEventsController < ApplicationController
-  #postman can't verify CSRF token authenticity
-  skip_before_action :verify_authenticity_token
 
   def show
     sorted_schedule = get_scheduled_events

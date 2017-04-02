@@ -1,6 +1,4 @@
 class MealsController < ApplicationController
-  #postman can't verify CSRF token authenticity
-  skip_before_action :verify_authenticity_token
 
   def create
     meal = Meal.create(meal_params)
