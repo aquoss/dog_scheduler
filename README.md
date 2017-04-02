@@ -1,28 +1,17 @@
-## Instructions
+# Dog Scheduler
 
-Your assignment is to create a RESTful API to manage a dog's daily schedule.
+## Function
+- Creates meals/walks for a dog
+- Schedules meals/walks for a dog
+- Updates scheduled events for a dog
+- Deletes scheduled events for a dog
+- Retrieves a dog's schedule for a particular day in JSON format
 
-At the bare minimum, this service should be able to:
-- Schedule mealtimes for a dog
-- Schedule walks for a dog
-- Retrieve a dog's schedule for a particular day in JSON format
-
-One important piece of business logic is that a dog cannot be doing multiple activities at the same time.
-
-Do not worry about:
-- Having different users or permissions
-- Time zones, it is perfectly fine to assume all dogs live in the same time zone, or even in UTC
-
-First and foremost, we will be looking for correctness. We will also pay attention to code clarity, unit tests, as well as your git commit history.
-
-## Setting up
-
-1. Install the required gems: `bundle install`
-2. Set up test database: `rake db:test:prepare`
-3. Run example tests: `rspec`
-4. Set up your development database: `rake db:migrate`
-5. (Optional) Seed your development database with an example Dog: `rake db:seed`
-
-## Provided example code
-
-We've put in some effort to make it easy to get started. There is already a Dog model and some example controller code to create a Dog. A good starting point would be to read through the provided integration spec in `/spec/integration/schedule_api_spec.rb`. You should definitely be modifying and adding to this file as you build out your solution.
+## Database Structure
+![erd](erd.jpg)
+Polymorphic relationship for Scheduled Events with Meals and Walks
+Reasoning:
+- The same walks/meals are often repeated on a daily basis. This way, a specific walk/meal is only created once for a dog, but can be scheduled over and over.
+- This saves database space because the event specifics (i.e. food, portion, etc) aren't repeatedly added and stored in the scheduled_events table.
+- From a ux perspective, users could select a saved meal from a dropdown list and schedule it, rather than continually typing in all the meal specifics.
+- It is much easier to scale the number of metrics gathered for meals and walks.
