@@ -22,7 +22,7 @@ class ScheduledEventsController < ApplicationController
     params.permit(:start_time, :end_time, :date, :schedulable_type, :schedulable_id, :dog_id)
   end
 
-  ## check if the dog already has an event scheduled at that time
+  ## check if there is a conflicting event
   def overlapping?(new_event)
     days_events = ScheduledEvent.where("dog_id = ? AND date = ?", params[:dog_id], new_event.date)
     if !days_events.nil?
@@ -36,25 +36,41 @@ class ScheduledEventsController < ApplicationController
     false
   end
 
-  ## find scheduled events for a date and format for api endpoint
+  ## find scheduled events for a date and output in json format
   def get_scheduled_events
     days_events = ScheduledEvent.where("dog_id = ? AND date = ?", params[:dog_id], params[:date])
     schedule = []
     if !days_events.nil?
-      days_events.each do |event|
-        event_hash = {
-          type: event.schedulable_type,
-          date: event.date,
-          start_time: event.start_time,
-          end_time: event.end_time,
-        }
-        event_data = event.schedulable.as_json
-        event_hash[:type_description] = event_data
-        schedule << event_hash
-      end
-      schedule = schedule.sort_by {|hash| hash[:start_time]}
+      formatted_schedule = format_events_for_api(days_events, schedule)
+      schedule = formatted_schedule.sort_by {|hash| hash[:start_time]}
     end
     schedule
+  end
+
+  ## format data for scheduled_events api endpoint
+  def format_events_for_api(events, schedule)
+    events.each do |event|
+      event_data = {
+        type: event.schedulable_type,
+        start_time: event.start_time,
+        end_time: event.end_time,
+        date: event.date,
+      }
+      event_type_data = event.schedulable.as_json
+      type_description_data = remove_database_markers(event_type_data)
+      event_data[:type_description] = type_description_data
+      schedule << event_data
+    end
+    schedule
+  end
+
+  ## remove data from being displayed at the scheduled_events api endpoint
+  def remove_database_markers(data)
+    data.delete("updated_at")
+    data.delete("created_at")
+    data.delete("id")
+    data.delete("dog_id")
+    data
   end
 
 

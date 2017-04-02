@@ -43,8 +43,6 @@ RSpec.describe "the schedule API" do
       expect(scheduled_events[0]["date"]).to eq "2017-01-01"
       expect(scheduled_events[0]["type_description"]["food"]).to eq "Royal Canin Medium Puppy Dry"
       expect(scheduled_events[0]["type_description"]["portion"]).to eq "3 scoops"
-      expect(scheduled_events[0]["type_description"]["id"]).to eq meal.id
-      expect(scheduled_events[0]["type_description"]["dog_id"]).to eq dog.id
 
       expect(scheduled_events[1]["type"]).to eq "Walk"
       expect(scheduled_events[1]["start_time"].to_time.to_s).to eq "2017-01-01 09:30:00 +0000"
@@ -52,8 +50,6 @@ RSpec.describe "the schedule API" do
       expect(scheduled_events[1]["date"]).to eq "2017-01-01"
       expect(scheduled_events[1]["type_description"]["location"]).to eq "Muir Woods"
       expect(scheduled_events[1]["type_description"]["leash_required?"]).to eq false
-      expect(scheduled_events[1]["type_description"]["id"]).to eq walk.id
-      expect(scheduled_events[1]["type_description"]["dog_id"]).to eq dog.id
     end
   end
 end
