@@ -54,7 +54,10 @@ Rails.application.routes.draw do
   #     resources :products
   #   end
 
-  resources :dogs, only: [:create] do
-    resource :schedule, only: [:show]
-  end
+  post '/dogs', to: 'dogs#create', as: 'dogs'
+  post '/dogs/:dog_id/meals', to: 'meals#create', as: 'meals'
+  post '/dogs/:dog_id/walks', to: 'walks#create', as: 'walks'
+  get '/dogs/:dog_id/scheduled_events', to: 'scheduled_events#show', as: 'schedule'
+  post '/dogs/:dog_id/scheduled_events', to: 'scheduled_events#create'
+
 end

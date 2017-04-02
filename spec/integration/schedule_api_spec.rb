@@ -7,21 +7,16 @@ RSpec.describe "the schedule API" do
 
   describe "querying the dog's schedule" do
     it "returns an empty array when there are no items" do
-      get "/dogs/#{dog.id}/schedule.json", date: "2017-01-01"
+      get "/dogs/#{dog.id}/scheduled_events", date: "2017-01-01"
 
       expect(response.status).to eq 200
       expect(JSON[response.body]).to eq []
     end
 
     it "returns a list of items that were added to the dog's schedule" do
-      pending "Implement the rest"
-
-      # You can modify any of the following code as you make decisions on
-      # how to set up and represent data in your system.
-
       post "/dogs/#{dog.id}/scheduled_events", {
-        start_time: "2017-01-01 08:00:00 -0800",
-        end_time: "2017-01-01 08:15:00 -0800",
+        start_time: "2017-01-01 08:00:00 +0000",
+        end_time: "2017-01-01 08:15:00 +0000",
         date: "2017-01-01",
         schedulable_type: "Meal",
         schedulable_id: meal.id,
@@ -29,31 +24,31 @@ RSpec.describe "the schedule API" do
       }
 
       post "/dogs/#{dog.id}/scheduled_events", {
-        start_time: "2017-01-01 09:30:00 -0800",
-        end_time: "2017-01-01 10:30:00 -0800",
+        start_time: "2017-01-01 09:30:00 +0000",
+        end_time: "2017-01-01 10:30:00 +0000",
         date: "2017-01-01",
         schedulable_type: "Walk",
         schedulable_id: walk.id,
         dog_id: dog.id,
       }
 
-      get "/dogs/#{dog.id}/schedule.json", date: "2017-01-01"
+      get "/dogs/#{dog.id}/scheduled_events", date: "2017-01-01"
 
       expect(response.status).to eq 200
       scheduled_events = JSON[response.body]
       expect(scheduled_events.count).to eq 2
-      expect(scheduled_events[0]["type"]).to eq "meal"
-      expect(scheduled_events[0]["start_time"]).to eq "2017-01-01 08:00:00 -0800"
-      expect(scheduled_events[0]["end_time"]).to eq "2017-01-01 08:15:00 -0800"
+      expect(scheduled_events[0]["type"]).to eq "Meal"
+      expect(scheduled_events[0]["start_time"].to_time.to_s).to eq "2017-01-01 08:00:00 +0000"
+      expect(scheduled_events[0]["end_time"].to_time.to_s).to eq "2017-01-01 08:15:00 +0000"
       expect(scheduled_events[0]["date"]).to eq "2017-01-01"
       expect(scheduled_events[0]["type_description"]["food"]).to eq "Royal Canin Medium Puppy Dry"
-      expect(scheduled_events[0]["type_description"]["portion"]).to eq "3 Scoops"
+      expect(scheduled_events[0]["type_description"]["portion"]).to eq "3 scoops"
       expect(scheduled_events[0]["type_description"]["id"]).to eq meal.id
       expect(scheduled_events[0]["type_description"]["dog_id"]).to eq dog.id
 
-      expect(scheduled_events[1]["type"]).to eq "walk"
-      expect(scheduled_events[1]["start_time"]).to eq "2017-01-01 09:30:00 -0800"
-      expect(scheduled_events[1]["end_time"]).to eq "2017-01-01 10:30:00 -0800"
+      expect(scheduled_events[1]["type"]).to eq "Walk"
+      expect(scheduled_events[1]["start_time"].to_time.to_s).to eq "2017-01-01 09:30:00 +0000"
+      expect(scheduled_events[1]["end_time"].to_time.to_s).to eq "2017-01-01 10:30:00 +0000"
       expect(scheduled_events[1]["date"]).to eq "2017-01-01"
       expect(scheduled_events[1]["type_description"]["location"]).to eq "Muir Woods"
       expect(scheduled_events[1]["type_description"]["leash_required?"]).to eq false
