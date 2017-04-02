@@ -16,7 +16,7 @@ class ScheduledEventsController < ApplicationController
   end
 
   def update
-    scheduled_event = ScheduledEvent.find(params[:scheduled_event_id])
+    scheduled_event = ScheduledEvent.find(params[:event_id])
     updated_event = scheduled_event.attributes(schedule_params)
     if !overlapping?(updated_event)
       updated_event.save
@@ -27,7 +27,7 @@ class ScheduledEventsController < ApplicationController
   end
 
   def destroy
-    scheduled_event = ScheduledEvent.find(params[:scheduled_event_id])
+    scheduled_event = ScheduledEvent.find(params[:event_id])
     scheduled_event.destroy
   end
 
