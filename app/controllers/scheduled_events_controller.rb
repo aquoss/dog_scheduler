@@ -11,19 +11,20 @@ class ScheduledEventsController < ApplicationController
       new_event.save
       render json: new_event, status: :created
     else
-      render json: {error: "There was an error saving the event"} #add status code
+      render json: {error: "There was an error saving the event"} 
     end
   end
 
   def update
     scheduled_event = ScheduledEvent.find(params[:event_id])
-    updated_event = scheduled_event.attributes(schedule_params)
-    if !overlapping?(updated_event)
-      updated_event.save
-      render json: updated_event
+    scheduled_event.attributes = schedule_params
+    if !overlapping?(scheduled_event)
+      scheduled_event.save
+      render json: scheduled_event
     else
-      render json: {error: "There was an error updating the event"}, status: :not_modified
-      #status 304
+      render json: {error: "There was an error updating the event"}
+      # render status: :not_modified
+      # status 304
     end
   end
 
@@ -39,11 +40,11 @@ class ScheduledEventsController < ApplicationController
   end
 
   ## check if there is a conflicting event
-  def overlapping?(new_event)
-    days_events = ScheduledEvent.where("dog_id = ? AND date = ?", params[:dog_id], new_event.date)
+  def overlapping?(specific_event)
+    days_events = ScheduledEvent.where("dog_id = ? AND date = ? AND id != ?", params[:dog_id], specific_event.date, specific_event.id)
     if !days_events.nil?
       days_events.each do |event|
-        if (new_event.start_time - event.end_time) * (event.start_time - new_event.end_time) > 0
+        if (specific_event.start_time - event.end_time) * (event.start_time - specific_event.end_time) > 0
           p "There is already an event scheduled at that time"
           return true
         end
