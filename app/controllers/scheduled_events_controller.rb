@@ -22,6 +22,7 @@ class ScheduledEventsController < ApplicationController
     params.permit(:start_time, :end_time, :date, :schedulable_type, :schedulable_id, :dog_id)
   end
 
+  ## check if the dog already has an event scheduled at that time
   def overlapping?(new_event)
     days_events = ScheduledEvent.where("dog_id = ? AND date = ?", params[:dog_id], new_event.date)
     if !days_events.nil?
@@ -35,6 +36,7 @@ class ScheduledEventsController < ApplicationController
     false
   end
 
+  ## find scheduled events for a date and format for api endpoint
   def get_scheduled_events
     days_events = ScheduledEvent.where("dog_id = ? AND date = ?", params[:dog_id], params[:date])
     schedule = []
@@ -42,17 +44,18 @@ class ScheduledEventsController < ApplicationController
       days_events.each do |event|
         event_hash = {
           type: event.schedulable_type,
+          date: event.date,
           start_time: event.start_time,
           end_time: event.end_time,
-          date: event.date,
         }
         event_data = event.schedulable.as_json
         event_hash[:type_description] = event_data
         schedule << event_hash
       end
-      schedule = schedule.sort_by { |hash| hash[:start_time] }
+      schedule = schedule.sort_by {|hash| hash[:start_time]}
     end
     schedule
   end
+
 
 end
