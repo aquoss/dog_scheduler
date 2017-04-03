@@ -11,7 +11,7 @@ class ScheduledEventsController < ApplicationController
       new_event.save
       render json: new_event, status: :created
     else
-      render json: {error: "There was an error saving the event"} 
+      render json: {error: "There was an error saving the event"}, status: :conflict
     end
   end
 
@@ -22,8 +22,7 @@ class ScheduledEventsController < ApplicationController
       scheduled_event.save
       render json: scheduled_event
     else
-      render json: {error: "There was an error updating the event"}
-      # render status: :not_modified
+      render json: {error: "There was an error updating the event"}, status: :not_modified
       # status 304
     end
   end
@@ -34,16 +33,12 @@ class ScheduledEventsController < ApplicationController
     render json: deleted_event
   end
 
-  private
-  def schedule_params
-    params.permit(:start_time, :end_time, :date, :schedulable_type, :schedulable_id, :dog_id)
-  end
-
   ## check if there is a conflicting event
   def overlapping?(specific_event)
-    days_events = ScheduledEvent.where("dog_id = ? AND date = ? AND id != ?", params[:dog_id], specific_event.date, specific_event.id)
-    if !days_events.nil?
-      days_events.each do |event|
+    days_events = ScheduledEvent.where("dog_id = ? AND date = ?", params[:dog_id], specific_event.date)
+    days_events_without_duplicate = remove_duplicate(specific_event, days_events)
+    if !days_events_without_duplicate.nil?
+      days_events_without_duplicate.each do |event|
         if (specific_event.start_time - event.end_time) * (event.start_time - specific_event.end_time) > 0
           p "There is already an event scheduled at that time"
           return true
@@ -51,6 +46,15 @@ class ScheduledEventsController < ApplicationController
       end
     end
     false
+  end
+
+  ## for update - remove event being updated when checking for conflicting event
+  def remove_duplicate(event, all_events)
+    if !event.id.nil?
+      duplicate = all_events.find(event.id)
+      all_events.duplicate.destroy
+    end
+    all_events
   end
 
   ## find scheduled events for a date and output in json format
@@ -62,6 +66,11 @@ class ScheduledEventsController < ApplicationController
       schedule = formatted_schedule.sort_by {|hash| hash[:start_time]}
     end
     schedule
+  end
+
+  private
+  def schedule_params
+    params.permit(:start_time, :end_time, :date, :schedulable_type, :schedulable_id, :dog_id)
   end
 
   ## format data for scheduled_events api endpoint
@@ -89,6 +98,5 @@ class ScheduledEventsController < ApplicationController
     data.delete("dog_id")
     data
   end
-
 
 end
