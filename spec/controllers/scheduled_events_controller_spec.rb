@@ -7,31 +7,51 @@ RSpec.describe ScheduledEventsController, type: :controller do
   end
 
   describe "POST#create" do
-    it "creates a Scheduled Event for a dog" do
-      expect do
-        post :create, { start_time: "2017-01-01 08:00:00 +0000", end_time: "2017-01-01 08:15:00 +0000", date: "2017-01-01", schedulable_type: "Meal", schedulable_id: @meal.id, dog_id: @dog.id }
-      end.to change { ScheduledEvent.count }.by 1
+    context "with non-conflicting params" do
+      it "creates a Scheduled Event for a dog" do
+        expect do
+          post :create, { start_time: "2017-01-01 08:00:00 +0000", end_time: "2017-01-01 08:15:00 +0000", date: "2017-01-01", schedulable_type: "Meal", schedulable_id: @meal.id, dog_id: @dog.id }
+        end.to change { ScheduledEvent.count }.by 1
 
-      expect(ScheduledEvent.last.start_time.to_time.to_s).to eq "2017-01-01 08:00:00 +0000"
-      expect(ScheduledEvent.last.end_time.to_time.to_s).to eq "2017-01-01 08:15:00 +0000"
-      expect(ScheduledEvent.last.date.to_s).to eq "2017-01-01"
-      expect(ScheduledEvent.last.schedulable_type).to eq "Meal"
-      expect(ScheduledEvent.last.schedulable_id).to eq @meal.id
-      expect(ScheduledEvent.last.dog_id).to eq @dog.id
+        expect(ScheduledEvent.last.start_time.to_time.to_s).to eq "2017-01-01 08:00:00 +0000"
+        expect(ScheduledEvent.last.end_time.to_time.to_s).to eq "2017-01-01 08:15:00 +0000"
+        expect(ScheduledEvent.last.date.to_s).to eq "2017-01-01"
+        expect(ScheduledEvent.last.schedulable_type).to eq "Meal"
+        expect(ScheduledEvent.last.schedulable_id).to eq @meal.id
+        expect(ScheduledEvent.last.dog_id).to eq @dog.id
+      end
+
+      it "returns 201 and renders the Scheduled Event attributes" do
+        post :create, { start_time: "2017-01-01 08:00:00 +0000", end_time: "2017-01-01 08:15:00 +0000", date: "2017-01-01", schedulable_type: "Meal", schedulable_id: @meal.id, dog_id: @dog.id }
+        expect(response.status).to eq 201
+
+        response_json = JSON.parse(response.body)
+        expect(response_json["id"]).to be_present
+        expect(response_json["start_time"].to_time.to_s).to eq "2017-01-01 08:00:00 +0000"
+        expect(response_json["end_time"].to_time.to_s).to eq "2017-01-01 08:15:00 +0000"
+        expect(response_json["date"]).to eq "2017-01-01"
+        expect(response_json["schedulable_type"]).to eq "Meal"
+        expect(response_json["schedulable_id"]).to eq @meal.id
+        expect(response_json["dog_id"]).to eq @dog.id
+      end
     end
 
-    it "returns 201 and renders the Scheduled Event attributes" do
-      post :create, { start_time: "2017-01-01 08:00:00 +0000", end_time: "2017-01-01 08:15:00 +0000", date: "2017-01-01", schedulable_type: "Meal", schedulable_id: @meal.id, dog_id: @dog.id }
-      expect(response.status).to eq 201
+    context "with conflicting params" do
+      it "does not save the new scheduled event" do
+        expect do
+          post :create, { start_time: "2017-01-01 08:00:00 +0000", end_time: "2017-01-01 08:15:00 +0000", date: "2017-01-01", schedulable_type: "Meal", schedulable_id: @meal.id, dog_id: @dog.id }
+          post :create, { start_time: "2017-01-01 08:05:00 +0000", end_time: "2017-01-01 08:20:00 +0000", date: "2017-01-01", schedulable_type: "Meal", schedulable_id: @meal.id, dog_id: @dog.id }
+        end.to change { ScheduledEvent.count }.by 1
+      end
 
-      response_json = JSON.parse(response.body)
-      expect(response_json["id"]).to be_present
-      expect(response_json["start_time"].to_time.to_s).to eq "2017-01-01 08:00:00 +0000"
-      expect(response_json["end_time"].to_time.to_s).to eq "2017-01-01 08:15:00 +0000"
-      expect(response_json["date"]).to eq "2017-01-01"
-      expect(response_json["schedulable_type"]).to eq "Meal"
-      expect(response_json["schedulable_id"]).to eq @meal.id
-      expect(response_json["dog_id"]).to eq @dog.id
+      it "returns 409 and renders the error" do
+        post :create, { start_time: "2017-01-01 08:00:00 +0000", end_time: "2017-01-01 08:15:00 +0000", date: "2017-01-01", schedulable_type: "Meal", schedulable_id: @meal.id, dog_id: @dog.id }
+        post :create, { start_time: "2017-01-01 08:05:00 +0000", end_time: "2017-01-01 08:20:00 +0000", date: "2017-01-01", schedulable_type: "Meal", schedulable_id: @meal.id, dog_id: @dog.id }
+        expect(response.status).to eq 409
+
+        response_json = JSON.parse(response.body)
+        expect(response_json["error"]).to be_present
+      end
     end
   end
 
