@@ -1,7 +1,7 @@
 class ScheduledEventsController < ApplicationController
 
   def show
-    sorted_schedule = get_scheduled_events
+    sorted_schedule = get_scheduled_events_json
     render json: sorted_schedule
   end
 
@@ -35,10 +35,9 @@ class ScheduledEventsController < ApplicationController
 
   ## check if there is a conflicting event
   def overlapping?(specific_event)
-    days_events = ScheduledEvent.where("dog_id = ? AND date = ?", params[:dog_id], specific_event.date)
-    days_events_without_duplicate = remove_duplicate(specific_event, days_events)
-    if !days_events_without_duplicate.nil?
-      days_events_without_duplicate.each do |event|
+    days_events = get_scheduled_events(specific_event)
+    if !days_events.nil?
+      days_events.each do |event|
         if (specific_event.start_time - event.end_time) * (event.start_time - specific_event.end_time) > 0
           p "There is already an event scheduled at that time"
           return true
@@ -48,17 +47,17 @@ class ScheduledEventsController < ApplicationController
     false
   end
 
-  ## for update - remove event being updated when checking for conflicting event
-  def remove_duplicate(event, all_events)
-    if !event.id.nil?
-      duplicate = all_events.find(event.id)
-      all_events.duplicate.destroy
+  ## find scheduled events for a specific date
+  def get_scheduled_events(event)
+    if event.id.nil?
+      days_events = ScheduledEvent.where("dog_id = ? AND date = ?", params[:dog_id], event.date)
+    else
+      days_events = ScheduledEvent.where("dog_id = ? AND date = ? AND id != ?", params[:dog_id], event.date, event.id)
     end
-    all_events
   end
 
   ## find scheduled events for a date and output in json format
-  def get_scheduled_events
+  def get_scheduled_events_json
     days_events = ScheduledEvent.where("dog_id = ? AND date = ?", params[:dog_id], params[:date])
     schedule = []
     if !days_events.nil?
